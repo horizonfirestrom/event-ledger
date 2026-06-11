@@ -5,6 +5,9 @@ import com.imran.dto.EventRequest;
 import com.imran.entity.Event;
 import com.imran.repository.EventRepository;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,10 +22,15 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final AccountServiceClient accountServiceClient;
+    private final Counter eventCounter;
 
-    public EventService(EventRepository eventRepository, AccountServiceClient accountServiceClient) {
+    public EventService(EventRepository eventRepository, AccountServiceClient accountServiceClient, MeterRegistry meterRegistry) {
         this.eventRepository = eventRepository;
         this.accountServiceClient = accountServiceClient;
+        
+        this.eventCounter = Counter.builder("events.processed")
+                .description("Number of processed events")
+                .register(meterRegistry);
     }
 
     public Event createEvent(EventRequest request) {
@@ -53,6 +61,8 @@ public class EventService {
         
         log.info("Event saved successfully with eventId={}",
                 request.eventId());
+        
+        eventCounter.increment();
 
         // Call Account Service
         accountServiceClient.applyTransaction(request);
