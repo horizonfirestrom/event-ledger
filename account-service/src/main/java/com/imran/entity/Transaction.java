@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+import com.imran.enums.TransactionType;
+
 @Entity
 @Table(name = "transactions")
 public class Transaction {
@@ -13,14 +15,15 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String eventId;
 
     @Column(nullable = false)
     private String accountId;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String type;
+    private TransactionType type;
 
     @Column(nullable = false)
     private BigDecimal amount;
@@ -55,12 +58,12 @@ public class Transaction {
 		this.accountId = accountId;
 	}
 
-	public String getType() {
+	public TransactionType getType() {
 		return type;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setType(TransactionType string) {
+		this.type = string;
 	}
 
 	public BigDecimal getAmount() {
