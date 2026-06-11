@@ -27,8 +27,9 @@ public class EventController {
     public ResponseEntity<Event> createEvent(
             @Valid @RequestBody EventRequest request) {
 
-        return ResponseEntity.ok(
-                eventService.createEvent(request));
+        Event event = eventService.createEvent(request);
+
+        return ResponseEntity.ok(event);
     }
 
     @GetMapping("/{eventId}")
