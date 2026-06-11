@@ -6,6 +6,10 @@ import org.springframework.web.client.RestClient;
 
 import com.imran.dto.EventRequest;
 import com.imran.dto.TransactionRequest;
+import com.imran.exception.AccountServiceUnavailableException;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 
 @Component
 public class AccountServiceClient {
@@ -16,6 +20,8 @@ public class AccountServiceClient {
         this.restClient = restClient;
     }
 
+    @Retry(name="accountService")
+    @CircuitBreaker(name = "accountService", fallbackMethod = "accountServiceFallback")
     public void applyTransaction(EventRequest request) {
     	String traceId = MDC.get("traceId");
     	//System.out.println("Sending TraceId: " + traceId);
@@ -35,5 +41,9 @@ public class AccountServiceClient {
                 .body(transactionRequest)
                 .retrieve()
                 .toBodilessEntity();
+    }
+    public void accountServiceFallback(EventRequest request, Throwable ex) {
+        throw new AccountServiceUnavailableException(
+                "Account Service is currently unavailable. Please try again later.");
     }
 }
