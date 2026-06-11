@@ -4,6 +4,9 @@ import com.imran.client.AccountServiceClient;
 import com.imran.dto.EventRequest;
 import com.imran.entity.Event;
 import com.imran.repository.EventRepository;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,6 +14,8 @@ import java.util.Optional;
 
 @Service
 public class EventService {
+	private static final Logger log =
+            LoggerFactory.getLogger(EventService.class);
 
     private final EventRepository eventRepository;
     private final AccountServiceClient accountServiceClient;
@@ -21,11 +26,16 @@ public class EventService {
     }
 
     public Event createEvent(EventRequest request) {
+    	log.info("Processing event {} for account {}",
+                request.eventId(),
+                request.accountId());
+    	
 
         Optional<Event> existingEvent =
                 eventRepository.findById(request.eventId());
 
         if (existingEvent.isPresent()) {
+        	log.info("Duplicate event detected for eventId={}, ignoring", request.eventId());
             return existingEvent.get();
         }
 
@@ -40,9 +50,14 @@ public class EventService {
         event.setMetadata(request.metadata());
         
         Event savedEvent = eventRepository.save(event);
+        
+        log.info("Event saved successfully with eventId={}",
+                request.eventId());
 
         // Call Account Service
         accountServiceClient.applyTransaction(request);
+        log.info("Transaction request sent to Account Service for eventId={}",
+                request.eventId());
 
         return savedEvent;
     }

@@ -1,5 +1,6 @@
 package com.imran.client;
 
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -16,6 +17,8 @@ public class AccountServiceClient {
     }
 
     public void applyTransaction(EventRequest request) {
+    	String traceId = MDC.get("traceId");
+    	//System.out.println("Sending TraceId: " + traceId);
 
         TransactionRequest transactionRequest =
                 new TransactionRequest(
@@ -28,6 +31,7 @@ public class AccountServiceClient {
         restClient.post()
                 .uri("/accounts/{accountId}/transactions",
                         request.accountId())
+                .header("X-Trace-Id", traceId)
                 .body(transactionRequest)
                 .retrieve()
                 .toBodilessEntity();
