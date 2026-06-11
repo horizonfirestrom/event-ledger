@@ -8,6 +8,7 @@ import com.imran.dto.TransactionRequest;
 import com.imran.entity.Account;
 import com.imran.entity.Transaction;
 import com.imran.enums.TransactionType;
+import com.imran.exception.DuplicateTransactionException;
 import com.imran.repository.AccountRepository;
 import com.imran.repository.TransactionRepository;
 
@@ -28,6 +29,9 @@ public class AccountService {
 
     @Transactional
     public void applyTransaction(TransactionRequest request) {
+    	if(transactionRepository.existsByEventId(request.eventId())) {
+    		throw new DuplicateTransactionException(request.eventId()); // Idempotent handling: Ignore duplicate events
+    	}
 
         Account account = accountRepository
                 .findById(request.accountId())

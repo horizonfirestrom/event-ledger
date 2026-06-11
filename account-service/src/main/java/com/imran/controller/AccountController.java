@@ -13,6 +13,8 @@ import com.imran.dto.TransactionRequest;
 import com.imran.entity.Account;
 import com.imran.service.AccountService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
@@ -26,7 +28,7 @@ public class AccountController {
     @PostMapping("/{accountId}/transactions")
     public ResponseEntity<Void> applyTransaction(
             @PathVariable String accountId,
-            @RequestBody TransactionRequest request) {
+            @Valid @RequestBody TransactionRequest request) {
 
         accountService.applyTransaction(request);
 

@@ -9,4 +9,5 @@ public interface TransactionRepository
         extends JpaRepository<Transaction, String> {
 
     List<Transaction> findByAccountId(String accountId);
+    boolean existsByEventId(String eventId);
 }
