@@ -1,4 +1,4 @@
-package com.imran;
+package com.imran.service;
 
 import com.imran.client.AccountServiceClient;
 import com.imran.dto.EventRequest;
